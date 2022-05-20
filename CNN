@@ -1,0 +1,89 @@
+#Connect to ggdriver8
+from google.colab import drive
+drive.mount('/content/drive')
+#add library 
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+from keras import datasets,Sequential,callbacks
+from keras.layers import Conv2D, Dense, MaxPooling2D, Flatten
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
+from keras.layers import Dense,Activation,BatchNormalization,Dropout
+from keras.models import Sequential
+from tensorflow.keras.utils import to_categorical
+from keras import callbacks
+from sklearn.metrics import precision_score, recall_score,confusion_matrix,classification_report,accuracy_score,f1_score
+from keras.callbacks import EarlyStopping
+from tensorflow.keras.optimizers import RMSprop
+from matplotlib import scale
+#create list 
+qua = ['Apple','Avocado','Banana','Carambula','Cocos','Grape White','Kiwi','Lemon','Orange','Tomato Cherry Red'] 
+dir_train = '/content/drive/MyDrive/qua' 
+dir_test = '/content/drive/MyDrive/qua'   #link library fruits in ggdriver 
+
+listpath = []
+y_train = []
+x_train = []
+x_test = []
+y_test = []
+
+#craete data and processing
+def create_data(dir, x_train, y_train):
+  for i in qua:
+    path = os.path.join(dir,i)
+    index_label = qua.index(i)
+    for j in os.listdir(path):
+      img_path = os.path.join(path, j)
+      img = image.load_img(img_path, target_size=(60,60)) 
+      img = img_to_array(img)
+      img = img.reshape(60,60,3) 
+      img = img.astype('float32')
+      img = img/255
+      x_train.append(img)
+      y_train.append(index_label)
+create_data(dir_train, x_train, y_train)
+
+x_train = np.array(x_train)
+y_train = np.array(y_train)
+y_train = np_utils.to_categorical(y_train, 10)
+print(x_train.shape) 
+print(y_train.shape)
+
+#Create model and complile
+# Initialising the CNN
+model = Sequential()
+
+# Step 1 - Convolution
+model.add(Conv2D(32, 3, 3, input_shape = (60,60, 3), activation = 'relu'))
+
+# Step 2 - Pooling
+model.add(MaxPooling2D(pool_size = (2, 2)))
+
+# Adding a second convolutional layer
+model.add(Conv2D(32, 3, 3, activation = 'relu'))
+model.add(MaxPooling2D(pool_size = (2, 2)))
+
+# Step 3 - Flattening
+model.add(Flatten())
+
+# Step 4 - Full connection
+model.add(Dense(512, activation = 'relu'))
+model.add(Dense(256, activation = 'relu'))
+model.add(Dense(128, activation = 'relu'))
+model.add(Dense( 10, activation = 'softmax'))
+
+# Compiling the CNN
+model.compile(optimizer = 'adam', loss = 'categorical_crossentropy', metrics = ['accuracy'])
+
+history = model.fit(x_train,y_train,epochs = 10,verbose = 1)
+
+#predict img
+pic = image.load_img('quachuoi (6).jpg', target_size=(60,60))
+plt.imshow(pic)
+pic = img_to_array(pic)
+pic = pic.reshape(1,60,60,3) 
+pic = pic.astype('float32')
+pic = pic/255
+np.argmax(model.predict(pic), axis=1)
